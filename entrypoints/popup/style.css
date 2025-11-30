@@ -13,8 +13,9 @@
 
 body {
   margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
+  min-width: 400px;
+  width: 480px;
+  min-height: 600px;
   background: #f4f6fb;
 }
 
