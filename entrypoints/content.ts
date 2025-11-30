@@ -1,7 +1,7 @@
 import { browserApi } from './shared/browser';
 import { loadSnippets, STORAGE_KEY } from './shared/storage';
 import { matchSnippetsForUrl } from './shared/pattern';
-import { MatchedSnippet, MessageToContent } from './shared/types';
+import { MatchedSnippet } from './shared/types';
 
 const STYLE_ATTR = 'data-autocss';
 
@@ -36,6 +36,10 @@ export default defineContentScript({
   runAt: 'document_idle',
   main() {
     applyFromStorage();
+
+    type MessageToContent =
+      | { type: 'APPLY_SNIPPETS'; payload: { snippets: MatchedSnippet[] } }
+      | { type: 'CLEAR_SNIPPETS' };
 
     browserApi.runtime.onMessage.addListener((message: MessageToContent) => {
       if (!message || typeof message !== 'object') return;
