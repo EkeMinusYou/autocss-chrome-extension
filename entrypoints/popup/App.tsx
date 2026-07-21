@@ -43,6 +43,8 @@ function App() {
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
+  const isFormVisible = isFormOpen || !!form.id;
 
   const matched = useMemo<MatchedSnippet[]>(() => {
     if (!activeUrl) return [];
@@ -77,6 +79,18 @@ function App() {
       console.error(err);
     });
   }, []);
+
+  const openForm = () => {
+    setError(null);
+    setForm(emptyForm);
+    setIsFormOpen(true);
+  };
+
+  const closeForm = () => {
+    setError(null);
+    setForm(emptyForm);
+    setIsFormOpen(false);
+  };
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -194,7 +208,7 @@ function App() {
     }
   };
 
-  const cancelEdit = () => setForm(emptyForm);
+  const cancelEdit = () => closeForm();
 
   return (
     <div className="app">
@@ -215,56 +229,68 @@ function App() {
         <section className="card">
           <div className="card-header">
             <h2>{form.id ? 'Edit snippet' : 'New snippet'}</h2>
-            {form.id && (
+            {form.id ? (
               <button className="ghost" onClick={cancelEdit} type="button">
                 Cancel
               </button>
+            ) : isFormVisible ? (
+              <button className="ghost" onClick={closeForm} type="button">
+                Hide form
+              </button>
+            ) : (
+              <button className="ghost" onClick={openForm} type="button">
+                Add snippet
+              </button>
             )}
           </div>
-          <form className="form" onSubmit={handleSubmit}>
-            <label className="field">
-              <span>Name</span>
-              <input
-                value={form.name}
-                placeholder="e.g. Hide sidebar"
-                onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
-              />
-            </label>
-            <label className="field">
-              <span>Scope (URL pattern)</span>
-              <input
-                value={form.scopePattern}
-                placeholder="https://example.com/*"
-                onChange={(e) => setForm((prev) => ({ ...prev, scopePattern: e.target.value }))}
-                required
-              />
-            </label>
-            <label className="field">
-              <span>CSS</span>
-              <textarea
-                value={form.cssText}
-                onChange={(e) => setForm((prev) => ({ ...prev, cssText: e.target.value }))}
-                placeholder="body { background: #f5f5f5; }"
-                rows={6}
-              />
-            </label>
-            <label className="inline">
-              <input
-                type="checkbox"
-                checked={form.enabled}
-                onChange={(e) => setForm((prev) => ({ ...prev, enabled: e.target.checked }))}
-              />
-              <span>Enable immediately</span>
-            </label>
-            <div className="actions">
-              <button type="submit" disabled={saving}>
-                {form.id ? 'Update' : 'Save'}
-              </button>
-              <button type="button" className="ghost" onClick={resetTab}>
-                Reset tab
-              </button>
-            </div>
-          </form>
+          {isFormVisible ? (
+            <form className="form" onSubmit={handleSubmit}>
+              <label className="field">
+                <span>Name</span>
+                <input
+                  value={form.name}
+                  placeholder="e.g. Hide sidebar"
+                  onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
+                />
+              </label>
+              <label className="field">
+                <span>Scope (URL pattern)</span>
+                <input
+                  value={form.scopePattern}
+                  placeholder="https://example.com/*"
+                  onChange={(e) => setForm((prev) => ({ ...prev, scopePattern: e.target.value }))}
+                  required
+                />
+              </label>
+              <label className="field">
+                <span>CSS</span>
+                <textarea
+                  value={form.cssText}
+                  onChange={(e) => setForm((prev) => ({ ...prev, cssText: e.target.value }))}
+                  placeholder="body { background: #f5f5f5; }"
+                  rows={6}
+                />
+              </label>
+              <label className="inline">
+                <input
+                  type="checkbox"
+                  checked={form.enabled}
+                  onChange={(e) => setForm((prev) => ({ ...prev, enabled: e.target.checked }))}
+                />
+                <span>Enable immediately</span>
+              </label>
+              <div className="actions">
+                <button type="submit" disabled={saving}>
+                  {form.id ? 'Update' : 'Save'}
+                </button>
+                <button type="button" className="ghost" onClick={resetTab}>
+                  Reset tab
+                </button>
+              </div>
+            </form>
+          ) : (
+            <p className="muted">Click &quot;Add snippet&quot; to start a new one.</p>
+          )}
         </section>
 
         <section className="card">
